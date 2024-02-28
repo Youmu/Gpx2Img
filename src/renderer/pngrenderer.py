@@ -4,33 +4,52 @@ from PIL import ImageDraw
 from datasource import telemetry
 
 class PngImg:
+    data:telemetry.NormalizedData
+    BackGround : Image.Image
 
-    def __init__(self, width, height):
-        self.Width = width
-        self.Height = height
-        self.Img = Image.new('RGBA', (width, height), '#00000000')
-
-    def RenderTrack(self, data:telemetry.NormalizedData):
+    def __init__(self, data:telemetry.NormalizedData):
+        self.data = data
+        self.BackGround = Image.new('RGBA', (400, 400), '#00000000')
         pts = []
-        for dt in data.DataPoints:
+        for dt in self.data.DataPoints:
             pts.append((400*dt.X, 400*dt.Y))
-        draw = ImageDraw.Draw(self.Img)
-        draw.line(pts, fill='#66CCFFFF', width= 4)
+        draw = ImageDraw.Draw(self.BackGround)
+        draw.line(pts, fill='#00000099', width=5)
 
-    def RenderProfile(self, data:telemetry.NormalizedData):  
-        draw = ImageDraw.Draw(self.Img)      
-        for dt in data.DataPoints:
+    def RenderPreview(self, filename):
+        Img = Image.new('RGBA', (1024, 768), '#00000000')
+        pts = []
+        for dt in self.data.DataPoints:
+            pts.append((400*dt.X, 400*dt.Y))
+        draw = ImageDraw.Draw(Img)
+        draw.line(pts, fill='#66CCFFFF', width= 4)
+        for dt in self.data.DataPoints:
             draw.line(
                 [(800 * dt.T, 650), (800 * dt.T, 650 - 200 * dt.E)], 
                 '#66CCFFFF', 
                 width=2)
-        coefT = 1 / data.TotalSeconds
-        for t in range(0, int(data.TotalSeconds), 60):
+        coefT = 1 / self.data.TotalSeconds
+        for t in range(0, int(self.data.TotalSeconds), 60):
             draw.line(
                 [(800 * (t * coefT), 650), (800 * (t * coefT), 655)],
                 '#00FF00FF',
                 width=1
             )
-    def SaveToFile(self, filename):
-        self.Img.save(filename)
+        Img.save(filename)
+
+    def RenderFrame(self, path, nameprefix, time:int):
+        img = self.BackGround.copy()
+        draw = ImageDraw.Draw(img)
+        for i in range(0, len(self.data.DataPoints) - 1, 1):
+            if self.data.DataPoints[i].TimeOffset <= time and self.data.DataPoints[i+1].TimeOffset > time :
+                dt = self.data.DataPoints[i]
+                draw.ellipse(
+                    [(dt.X * 400-5, dt.Y * 400-5),(dt.X * 400 + 5, dt.Y * 400 + 5)], 
+                    fill='#00FF00FF', 
+                    width=5)
+                break
+
+        path = '{p}\\{prefix}{nb:04d}.png'.format(p=path, prefix=nameprefix, nb=time)
+        img.save(path)
+        
         
