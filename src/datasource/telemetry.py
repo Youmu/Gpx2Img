@@ -4,14 +4,48 @@ class TelemetryDataPoint:
     Lat: float
     Lon: float
     Ele: float
+    X: float
+    Y: float
     Time: datetime.datetime
     
-    def __init__(self, Time : datetime.datetime, Lat, Lon, Ele):
+    def __init__(self, Time: datetime.datetime, Lat, Lon, Ele):
         self.Lat = Lat
         self.Lon = Lon
         self.Ele = Ele
         self.Time = Time
 
+class NormalizedDataPoint:
+    Time: datetime.datetime
+    TimeOffset: float
+    X: float
+    Y: float
+    E: float
+    T: float
+
+class NormalizedData:
+    DataPoints: list[NormalizedDataPoint]
+    TotalSeconds: float
+
+    def __init__(self):
+        self.DataPoints = []
+
+    def Trim(self, start:float, length:float):
+        trimmed = NormalizedData()
+        trimmed.TotalSeconds = length
+        coefT = 1.0 / length
+        for dt in self.DataPoints:
+            if dt.TimeOffset > start and dt.TimeOffset < start + length:
+                tdt = NormalizedDataPoint()
+                tdt.Time = dt.Time
+                tdt.TimeOffset = dt.TimeOffset - start
+
+                tdt.X = dt.X
+                tdt.Y = dt.Y
+                tdt.E = dt.E
+                tdt.T = tdt.TimeOffset * coefT
+
+                trimmed.DataPoints.append(tdt)
+        return trimmed
 
 class TelemetryData:
     def __init__(self, DataPoints : list[TelemetryDataPoint]):
@@ -44,3 +78,29 @@ class TelemetryData:
         self.MaxTime = maxTime
         self.MinEle = minEle
         self.maxEle = maxEle
+
+    def Normalize(self) -> NormalizedData:
+        normalized = NormalizedData()
+        normalized.TotalSeconds = (self.MaxTime - self.MinTime).total_seconds()
+        if self.MaxLon - self.MinLon > self.MaxLat - self.MinLat:
+            coef = 1.0 / (self.MaxLon - self.MinLon)
+        else:
+            coef = 1.0 / (self.MaxLat - self.MinLat)
+
+        coefT = 1.0 / normalized.TotalSeconds
+        coefH = 1.0 / (self.maxEle - self.MinEle)
+
+        for dt in self.Datapoints:
+            ndp = NormalizedDataPoint()
+            ndp.Time = dt.Time
+            ndp.TimeOffset = (dt.Time - self.MinTime).total_seconds() 
+
+            ndp.X = (dt.Lon - self.MinLon) * coef
+            ndp.Y = 1 - (dt.Lat - self.MinLat) * coef
+            ndp.T = ndp.TimeOffset * coefT
+            ndp.E = (dt.Ele - self.MinEle) * coefH
+            normalized.DataPoints.append(ndp)
+        return normalized
+
+
+

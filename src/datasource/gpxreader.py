@@ -20,6 +20,5 @@ class gpxreader:
             time = datetime.datetime.fromisoformat(timeStr)
             ele = float(c.find(path='gpx:ele', namespaces=ns).text)
             datapts.append(telemetry.TelemetryDataPoint(time, lat, lon, ele))
-
         print(count)
         return telemetry.TelemetryData(datapts)
