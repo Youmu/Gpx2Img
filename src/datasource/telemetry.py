@@ -1,4 +1,5 @@
 import datetime
+from geopy.distance import geodesic 
 
 class TelemetryDataPoint:
     Lat: float
@@ -21,6 +22,8 @@ class NormalizedDataPoint:
     Y: float
     E: float
     T: float
+    D: float
+    SPD: float
 
 class NormalizedData:
     DataPoints: list[NormalizedDataPoint]
@@ -43,6 +46,8 @@ class NormalizedData:
                 tdt.Y = dt.Y
                 tdt.E = dt.E
                 tdt.T = tdt.TimeOffset * coefT
+                tdt.SPD = dt.SPD
+                tdt.D = dt.D
 
                 trimmed.DataPoints.append(tdt)
         return trimmed
@@ -58,7 +63,6 @@ class TelemetryData:
         maxTime = DataPoints[0].Time
         minEle = DataPoints[0].Ele
         maxEle = DataPoints[0].Ele
-
 
         for dt in self.Datapoints:
             if dt.Lat < minLat: minLat = dt.Lat
@@ -80,6 +84,11 @@ class TelemetryData:
         self.maxEle = maxEle
 
     def Normalize(self) -> NormalizedData:
+        
+        preLat = self.Datapoints[0].Lat
+        preLon = self.Datapoints[0].Lon
+        preT = 0
+
         normalized = NormalizedData()
         normalized.TotalSeconds = (self.MaxTime - self.MinTime).total_seconds()
         if self.MaxLon - self.MinLon > self.MaxLat - self.MinLat:
@@ -99,6 +108,17 @@ class TelemetryData:
             ndp.Y = 1 - (dt.Lat - self.MinLat) * coef
             ndp.T = ndp.TimeOffset * coefT
             ndp.E = (dt.Ele - self.MinEle) * coefH
+
+            ndp.D = geodesic((preLat, preLon),(dt.Lat, dt.Lon)).kilometers
+            deltaT = ndp.TimeOffset - preT
+            if deltaT == 0 :
+                ndp.SPD = 0
+            else:
+                ndp.SPD = ndp.D / deltaT * 3600.0
+            preLat = dt.Lat
+            preLon = dt.Lon
+            preT = ndp.TimeOffset
+
             normalized.DataPoints.append(ndp)
         return normalized
 
