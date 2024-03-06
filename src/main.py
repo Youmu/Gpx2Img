@@ -1,6 +1,7 @@
 import datetime
 from datasource import gpxreader
 from renderer import pngrenderer
+from renderer import isometricview
 
 gpxreader = gpxreader.gpxreader()
 
@@ -13,6 +14,12 @@ trim = norm.Trim(3960, 780)
 r = pngrenderer.PngImg(trim)
 r.RenderPreview('test.png')
 r.RenderFrame('.', 'sample', 30)
+
+isom = isometricview.IsometricImg(trim)
+isom.RenderPreview('isometric.png')
+isom.RenderFrame('.', 'sampleiso', 30)
 for i in range(1, 780):
-    r.RenderFrame('/Users/tengdayan/Code/output', 'f105526-', i)
+    isom.RenderFrame('/Users/tengdayan/Code/output', 'f105526-', i)
+#for i in range(1, 780):
+#    r.RenderFrame('/Users/tengdayan/Code/output', 'f105526-', i)
 print(trim.DataPoints[0].Time)

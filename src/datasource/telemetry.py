@@ -24,6 +24,7 @@ class NormalizedDataPoint:
     T: float
     D: float
     SPD: float
+    ELE: float
 
 class NormalizedData:
     DataPoints: list[NormalizedDataPoint]
@@ -47,6 +48,7 @@ class NormalizedData:
                 tdt.E = dt.E
                 tdt.T = tdt.TimeOffset * coefT
                 tdt.SPD = dt.SPD
+                tdt.ELE = dt.ELE
                 tdt.D = dt.D
 
                 trimmed.DataPoints.append(tdt)
@@ -108,6 +110,7 @@ class TelemetryData:
             ndp.Y = 1 - (dt.Lat - self.MinLat) * coef
             ndp.T = ndp.TimeOffset * coefT
             ndp.E = (dt.Ele - self.MinEle) * coefH
+            ndp.ELE = dt.Ele
 
             ndp.D = geodesic((preLat, preLon),(dt.Lat, dt.Lon)).kilometers
             deltaT = ndp.TimeOffset - preT
