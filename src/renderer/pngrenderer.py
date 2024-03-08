@@ -21,8 +21,8 @@ class PngImg:
         draw.line(pts, fill='#CCCCCCFF', width=5)
         self.Font = ImageFont.truetype('./Tachyo-1.0.0.otf', size=50)
         textFont = ImageFont.truetype('Arial', size=30)
-        draw.text([80,90 + self.TextOffset], 'km/h'.format(dt.SPD), fill='#EEEEEEFF', font=textFont)
-        draw.text([295,90 + self.TextOffset], 'm'.format(dt.SPD), fill='#EEEEEEFF', font=textFont)
+        draw.text([80,90 + self.TextOffset], 'km/h', fill='#EEEEEEFF', font=textFont)
+        draw.text([295,90 + self.TextOffset], 'm', fill='#EEEEEEFF', font=textFont)
 
     def RenderPreview(self, filename):
         Img = Image.new('RGBA', (1024, 768), '#00000000')
@@ -33,7 +33,7 @@ class PngImg:
         draw.line(pts, fill='#66CCFFFF', width= 4)
         for dt in self.data.DataPoints:
             draw.line(
-                [(800 * dt.T, 650), (800 * dt.T, 650 - 200 * dt.E)], 
+                [(800 * dt.T, 650), (800 * dt.T, 650 - 200 * dt.Z)], 
                 '#66CCFFFF', 
                 width=2)
         coefT = 1 / self.data.TotalSeconds
