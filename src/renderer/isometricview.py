@@ -105,7 +105,7 @@ class IsometricImg:
         self.BackGround.save(filename)
 
 
-    def RenderFrame(self, path, nameprefix, time:float, nframe:int):
+    def RenderFrame(self, filename, time:float):
         img = self.BackGround.copy()
         draw = ImageDraw.Draw(img)
         self.Course.SetRotationMatrix( -0.05 * time - np.pi / 6, np.pi / 8)
@@ -121,7 +121,9 @@ class IsometricImg:
                 draw.text([40,40 + self.TextOffset], '{:.1f}'.format(dpt.SPD), fill='#EEEEEEFF', font=self.Font, align='right')
                 draw.text([250,40 + self.TextOffset], '{:.0f}'.format(dpt.ELE), fill='#EEEEEEFF', font=self.Font, align='right')
                 break
-        path = '{p}/{prefix}{nb:05d}.png'.format(p=path, prefix=nameprefix, nb=nframe)
-        img.save(path)
+        if(filename) :
+            img.save(filename)
+        else:
+            img.show()
         
         
