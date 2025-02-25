@@ -48,20 +48,23 @@ class MapRenderer:
         pts = []
         for dt in self.data.Datapoints:
             pts.append(((dt.Lon - Lon_W_PIC) * self.Lon_C + self.Border, (Lat_N_PIC - dt.Lat) * self.Lat_C + self.Border))
-        draw.line(pts, fill='#FFFFFFFF', width= 10)
+        draw.line(pts, fill='#FFFFFFFF', width= 16)
         
     
     def ShowBackground(self):
         self.BackGround.show()
 
     def RenderFrame(self, path, nameprefix, time:int):
+        Lon_W_PIC = self.data.MinLon
+        Lat_N_PIC = self.data.MaxLat
         img = self.BackGround.copy()
         draw = ImageDraw.Draw(img)
         for i in range(0, len(self.data.DataPoints) - 1, 1):
             if self.data.DataPoints[i].TimeOffset <= time and self.data.DataPoints[i+1].TimeOffset > time :
                 dt = self.data.DataPoints[i]
                 draw.ellipse(
-                    [(dt.X * 400-8, dt.Y * 400-8),(dt.X * 400 + 8, dt.Y * 400 + 8)], 
+                    [((dt.Lon - Lon_W_PIC) * self.Lon_C + self.Border - 8, (Lat_N_PIC - dt.Lat) * self.Lat_C + self.Border) - 8
+                     ,((dt.Lon - Lon_W_PIC) * self.Lon_C + self.Border + 8, (Lat_N_PIC - dt.Lat) * self.Lat_C + self.Border)] + 8, 
                     fill='#00FF00FF', 
                     width=6)
                 draw.text([40,40 + self.TextOffset], '{:.1f}'.format(dt.SPD), fill='#EEEEEEFF', font=self.Font, align='right')
@@ -69,6 +72,7 @@ class MapRenderer:
                 break
 
         path = '{p}/{prefix}{nb:04d}.png'.format(p=path, prefix=nameprefix, nb=time)
-        img.save(path)
+        #img.save(path)
+        img.show()
         
         

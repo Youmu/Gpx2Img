@@ -1,43 +1,41 @@
 import datetime
 from datasource import gpxreader, telemetry
-from renderer import pngrenderer, isometricview, preview
-from ui import mainwindow
+from renderer import maprenderer, pngrenderer, isometricview, preview
 import numpy as np
 
 
 def RenderImgSeq(normalizedData:telemetry.NormalizedData):
     
-    #r = pngrenderer.PngImg(normalizedData)
-    #r.RenderPreview('test.png')
-    #r.RenderFrame('.', 'sample', 30)
 
     isom = isometricview.IsometricImg(normalizedData)
     i = 1
     fn = 1
-    while i < 150:
-        isom.RenderFrame('/Users/tengdayan/DavinciMedia/beidahu-Course/g122132-{fn:05d}.png'.format(fn=fn), i)
+    while i < 780:
+        isom.RenderFrame('/Users/tengdayan/code/Gpx2Img/imgseq/g250215-{fn:05d}.png'.format(fn=fn), i)
         i = i + 1
         fn = fn + 1
-    #for i in range(1, 780):
-    #    r.RenderFrame('/Users/tengdayan/Code/output', 'f105526-', i)
-    #print(norm.DataPoints[0].Time)
+    print(norm.DataPoints[0].Time)
     
-app = mainwindow.App()
-app.ShowMainWindow()
+#app = mainwindow.App()
+#app.ShowMainWindow()
 
 
-#gpxreader = gpxreader.gpxreader()
-#datapts = gpxreader.LoadGpx('/Users/tengdayan/Code/data/activity_Beidahu.gpx')
-#norma = datapts.Normalize(0.5)
-#prev = preview.RenderPreview(norma)
+gpxreader = gpxreader.gpxreader()
+map = maprenderer.MapRenderer()
+map.LoadMap('/Users/tengdayan/code/Gpx2Img/sampledata/Nanlou.png', 126.615795,126.660673,43.424222,43.398644)
+datapts = gpxreader.LoadGpx('/Users/tengdayan/code/Gpx2Img/activity.gpx')
+trim = datapts.Trim(5700, 840)
+norm = trim.Normalize(0.4)
+map.SetData(trim)
+map.DrawPath()
+map.ShowBackground()
+#prev = preview.RenderPreview(norm)
 #prev.ShowPreview()
-#print('Data is from {mintime} to {maxtime}'.format(mintime = datapts.MinTime, maxtime = datapts.MaxTime))
-#print('Elevation is from {mine} to {maxe} meters'.format(mine = datapts.MinEle, maxe = datapts.maxEle))
-#iso = isometricview.IsometricImg(norma)
-#RenderImgSeq(norma)
-#iso.RenderFrame('', 300)
+print('Data is from {mintime} to {maxtime}'.format(mintime = trim.MinTime, maxtime = trim.MaxTime))
+print('Elevation is from {mine} to {maxe} meters'.format(mine = trim.MinEle, maxe = trim.maxEle))
 
-#trimmeddpts = datapts.Trim(1638, 180)
-#norm = trimmeddpts.Normalize(0.4)
-#trim = norm.Trim(1668, 90) #3906/780
+#iso = isometricview.IsometricImg(norm)
+#RenderImgSeq(norm)
+#iso.RenderFrame('test.png', 300)
+
 
